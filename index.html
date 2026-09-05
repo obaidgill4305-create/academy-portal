@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Al-Falah Academy Portal</title>
+<style>
+  :root{
+    --navy:#1b2a4a;
+    --navy-deep:#121d34;
+    --cream:#f7f3ea;
+    --paper:#fffdf8;
+    --gold:#c9972b;
+    --gold-soft:#e8c874;
+    --green:#4c7a5b;
+    --green-bg:#e7f0e9;
+    --red:#b4463f;
+    --red-bg:#f6e6e4;
+    --ink:#2a2a28;
+    --muted:#7a7568;
+    --line:#e4ddc9;
+    --serif: 'Iowan Old Style','Georgia','Times New Roman',serif;
+    --sans: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:var(--sans);
+    background:var(--cream);
+    color:var(--ink);
+    background-image:
+      linear-gradient(var(--cream),var(--cream)),
+      repeating-linear-gradient(transparent, transparent 27px, rgba(27,42,74,0.035) 28px);
+  }
+  .app{display:flex;min-height:100vh;}
+
+  /* Sidebar */
+  .sidebar{
+    width:230px;
+    background:var(--navy);
+    background:linear-gradient(180deg,var(--navy),var(--navy-deep));
+    color:var(--cream);
+    padding:26px 18px;
+    flex-shrink:0;
+    position:sticky;top:0;height:100vh;
+  }
+  .brand{
+    font-family:var(--serif);
+    font-size:22px;
+    letter-spacing:.5px;
+    border-bottom:1px solid rgba(255,255,255,.15);
+    padding-bottom:16px;
+    margin-bottom:22px;
+  }
+  .brand small{display:block;font-family:var(--sans);font-size:11px;color:var(--gold-soft);letter-spacing:1.5px;margin-top:4px;text-transform:uppercase;}
+  .nav-item{
+    display:flex;align-items:center;gap:10px;
+    padding:11px 12px;border-radius:8px;
+    color:rgba(247,243,234,.78);
+    cursor:pointer;font-size:14.5px;margin-bottom:4px;
+    transition:background .15s, color .15s;
+    border-left:3px solid transparent;
+  }
+  .nav-item .num{
+    font-family:var(--serif);font-size:12px;color:var(--gold-soft);
+    width:18px;
+  }
+  .nav-item:hover{background:rgba(255,255,255,.06);color:#fff;}
+  .nav-item.active{background:rgba(201,151,43,.16);color:#fff;border-left:3px solid var(--gold);}
+  .sidebar-foot{margin-top:30px;font-size:11px;color:rgba(247,243,234,.4);line-height:1.6;border-top:1px solid rgba(255,255,255,.1);padding-top:14px;}
+
+  /* Main */
+  .main{flex:1;padding:34px 40px;max-width:1180px;}
+  .page-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:26px;}
+  .page-head h1{font-family:var(--serif);font-size:28px;margin:0 0 4px;color:var(--navy);}
+  .page-head p{margin:0;color:var(--muted);font-size:13.5px;}
+  .today{font-size:13px;color:var(--muted);text-align:right;}
+  .today b{color:var(--navy);}
+
+  .hidden{display:none !important;}
+
+  /* Cards */
+  .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
+  .stat-card{
+    background:var(--paper);border:1px solid var(--line);border-radius:10px;
+    padding:18px 20px;position:relative;overflow:hidden;
+  }
+  .stat-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--gold);}
+  .stat-card .label{font-size:11.5px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);}
+  .stat-card .value{font-family:var(--serif);font-size:30px;color:var(--navy);margin-top:4px;}
+  .stat-card.due::before{background:var(--red);}
+  .stat-card.present::before{background:var(--green);}
+
+  .panel{
+    background:var(--paper);border:1px solid var(--line);border-radius:10px;
+    padding:24px 26px;margin-bottom:24px;
+  }
+  .panel h2{
+    font-family:var(--serif);font-size:18px;color:var(--navy);margin:0 0 18px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .panel h2 .tag{
+    font-family:var(--sans);font-size:10.5px;background:var(--gold);color:#fff;
+    padding:2px 8px;border-radius:20px;letter-spacing:.5px;text-transform:uppercase;
+  }
+
+  /* Forms */
+  form.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;align-items:end;}
+  .field{display:flex;flex-direction:column;gap:5px;}
+  .field label{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+  .field input, .field select{
+    padding:9px 10px;border:1px solid var(--line);border-radius:6px;
+    font-size:14px;background:#fff;color:var(--ink);font-family:var(--sans);
+  }
+  .field input:focus, .field select:focus{outline:2px solid var(--gold-soft);border-color:var(--gold);}
+  .btn{
+    background:var(--navy);color:#fff;border:none;border-radius:6px;
+    padding:10px 18px;font-size:13.5px;cursor:pointer;font-weight:600;
+    letter-spacing:.3px;transition:background .15s;
+  }
+  .btn:hover{background:var(--navy-deep);}
+  .btn.gold{background:var(--gold);}
+  .btn.gold:hover{background:#b5851f;}
+  .btn.ghost{background:transparent;color:var(--red);border:1px solid var(--red);padding:5px 10px;font-size:12px;}
+  .btn.ghost:hover{background:var(--red-bg);}
+  .btn.small{padding:6px 12px;font-size:12px;}
+
+  /* Table */
+  table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  thead th{
+    text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.6px;
+    color:var(--muted);border-bottom:2px solid var(--navy);padding:8px 10px;font-weight:600;
+  }
+  tbody td{padding:10px;border-bottom:1px solid var(--line);color:var(--ink);}
+  tbody tr:hover{background:rgba(201,151,43,.05);}
+  .roll{font-family:var(--serif);color:var(--gold);font-weight:700;}
+  .empty-row td{text-align:center;color:var(--muted);padding:26px;font-style:italic;}
+
+  .badge{padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:600;}
+  .badge.paid{background:var(--green-bg);color:var(--green);}
+  .badge.due{background:var(--red-bg);color:var(--red);}
+  .badge.present{background:var(--green-bg);color:var(--green);}
+  .badge.absent{background:var(--red-bg);color:var(--red);}
+
+  .att-list{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
+  .att-row{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:#fff;
+  }
+  .att-row .who{display:flex;gap:10px;align-items:center;}
+  .att-row .who .roll{min-width:26px;}
+  .toggle-group{display:flex;gap:6px;}
+  .toggle-btn{
+    border:1px solid var(--line);background:#fff;padding:6px 14px;border-radius:6px;
+    cursor:pointer;font-size:12.5px;color:var(--muted);
+  }
+  .toggle-btn.p.active{background:var(--green);color:#fff;border-color:var(--green);}
+  .toggle-btn.a.active{background:var(--red);color:#fff;border-color:var(--red);}
+
+  .row-actions{display:flex;gap:8px;}
+  .filters{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+
+  .note{font-size:12px;color:var(--muted);margin-top:10px;}
+
+  @media (max-width:900px){
+    .app{flex-direction:column;}
+    .sidebar{width:100%;height:auto;position:relative;display:flex;overflow-x:auto;gap:4px;padding:14px;}
+    .brand{display:none;}
+    .sidebar-foot{display:none;}
+    .nav-item{white-space:nowrap;}
+    .main{padding:20px;}
+    .stat-row{grid-template-columns:repeat(2,1fr);}
+    form.grid{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="sidebar">
+    <div class="brand">Fellowship Academy<small>Register &amp; Ledger</small></div>
+    <div class="nav-item active" data-page="dashboard"><span class="num">I</span> Dashboard</div>
+    <div class="nav-item" data-page="students"><span class="num">II</span> Admission / Students</div>
+    <div class="nav-item" data-page="attendance"><span class="num">III</span> Attendance</div>
+    <div class="nav-item" data-page="fees"><span class="num">IV</span> Fees</div>
+    <div class="sidebar-foot">Connected to local MySQL database.</div>
+  </div>
+
+  <div class="main">
+
+    <!-- DASHBOARD -->
+    <div class="page" id="page-dashboard">
+      <div class="page-head">
+        <div>
+          <h1>Dashboard</h1>
+          <p>A quick overview of the academy</p>
+        </div>
+        <div class="today">Today: <b id="todayDate"></b></div>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="label">Total Students</div>
+          <div class="value" id="statStudents">0</div>
+        </div>
+        <div class="stat-card present">
+          <div class="label">Present Today</div>
+          <div class="value" id="statPresent">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Absent Today</div>
+          <div class="value" id="statAbsent">0</div>
+        </div>
+        <div class="stat-card due">
+          <div class="label">Fees Due</div>
+          <div class="value" id="statDue">0</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Recently Admitted Students</h2>
+        <table>
+          <thead><tr><th>Roll No.</th><th>Name</th><th>Class</th><th>Admission Date</th></tr></thead>
+          <tbody id="recentStudentsBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- STUDENTS -->
+    <div class="page hidden" id="page-students">
+      <div class="page-head">
+        <div><h1>Admission / Students</h1><p>Admit a new student or view the full list</p></div>
+      </div>
+
+      <div class="panel">
+        <h2>New Admission <span class="tag">Admission Form</span></h2>
+        <form class="grid" id="studentForm">
+          <div class="field"><label>Student Name</label><input type="text" id="sName" required></div>
+          <div class="field"><label>Father's Name</label><input type="text" id="fName" required></div>
+          <div class="field"><label>Class</label>
+            <select id="sClass" required>
+              <option value="">Select</option>
+              <option>Nursery</option><option>KG</option>
+              <option>Class 1</option><option>Class 2</option><option>Class 3</option>
+              <option>Class 4</option><option>Class 5</option><option>Class 6</option>
+              <option>Class 7</option><option>Class 8</option><option>Class 9</option><option>Class 10</option>
+            </select>
+          </div>
+          <div class="field"><label>Contact Number</label><input type="text" id="sPhone" placeholder="03xx-xxxxxxx"></div>
+          <div class="field"><label>Monthly Fee (Rs)</label><input type="number" id="sFee" min="0" placeholder="e.g. 3000"></div>
+          <div class="field" style="align-self:end;"><button type="submit" class="btn gold">Save Admission</button></div>
+        </form>
+      </div>
+
+      <div class="panel">
+        <h2>All Students <span class="tag" id="studentCountTag">0</span></h2>
+        <div class="filters">
+          <div class="field"><label>Filter by Class</label>
+            <select id="filterClass"><option value="">All Classes</option></select>
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>Roll No.</th><th>Name</th><th>Father's Name</th><th>Class</th><th>Contact</th><th>Monthly Fee</th><th>Action</th></tr></thead>
+          <tbody id="studentsBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ATTENDANCE -->
+    <div class="page hidden" id="page-attendance">
+      <div class="page-head">
+        <div><h1>Attendance</h1><p>Mark daily attendance</p></div>
+      </div>
+
+      <div class="panel">
+        <h2>Mark Attendance</h2>
+        <div class="filters">
+          <div class="field"><label>Date</label><input type="date" id="attDate"></div>
+          <div class="field"><label>Class</label><select id="attClass"><option value="">All Classes</option></select></div>
+        </div>
+        <div class="att-list" id="attList"></div>
+        <div style="margin-top:16px;">
+          <button class="btn gold" id="saveAttendance">Save Attendance</button>
+          <span class="note" id="attSavedNote"></span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>View Past Records</h2>
+        <div class="filters">
+          <div class="field"><label>Select Date</label><input type="date" id="historyDate"></div>
+        </div>
+        <table>
+          <thead><tr><th>Roll No.</th><th>Name</th><th>Class</th><th>Status</th></tr></thead>
+          <tbody id="historyBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- FEES -->
+    <div class="page hidden" id="page-fees">
+      <div class="page-head">
+        <div><h1>Fees</h1><p>Record fee payments and track dues</p></div>
+      </div>
+
+      <div class="panel">
+        <h2>Record Fee Payment <span class="tag">Fee Entry</span></h2>
+        <form class="grid" id="feeForm">
+          <div class="field"><label>Student</label><select id="feeStudent" required></select></div>
+          <div class="field"><label>Month</label>
+            <select id="feeMonth" required>
+              <option>January</option><option>February</option><option>March</option><option>April</option>
+              <option>May</option><option>June</option><option>July</option><option>August</option>
+              <option>September</option><option>October</option><option>November</option><option>December</option>
+            </select>
+          </div>
+          <div class="field"><label>Amount (Rs)</label><input type="number" id="feeAmount" min="0" required></div>
+          <div class="field"><label>Status</label>
+            <select id="feeStatus"><option value="paid">Paid</option><option value="due">Due</option></select>
+          </div>
+          <div class="field" style="align-self:end;"><button type="submit" class="btn gold">Save Entry</button></div>
+        </form>
+      </div>
+
+      <div class="panel">
+        <h2>Fee Records</h2>
+        <div class="filters">
+          <div class="field"><label>Filter by Student</label><select id="filterFeeStudent"><option value="">All Students</option></select></div>
+          <div class="field"><label>Status</label><select id="filterFeeStatus"><option value="">All</option><option value="paid">Paid</option><option value="due">Due</option></select></div>
+        </div>
+        <table>
+          <thead><tr><th>Student</th><th>Class</th><th>Month</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="feesBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let students = [];
+let attendance = {}; // { "YYYY-MM-DD": { studentId: "present"/"absent" } } -- cache for the currently viewed dates
+let fees = [];
+
+// Change this if you host the api/ folder somewhere other than alongside this file.
+const API = 'api';
+
+const CLASS_ORDER = ["Nursery","KG","Class 1","Class 2","Class 3","Class 4","Class 5","Class 6","Class 7","Class 8","Class 9","Class 10"];
+
+async function apiGet(url){
+  const res = await fetch(url);
+  if(!res.ok){ const e = await res.json().catch(()=>({error:res.statusText})); throw new Error(e.error||'Request failed'); }
+  return res.json();
+}
+async function apiSend(url, method, body){
+  const res = await fetch(url, {
+    method,
+    headers: body ? {'Content-Type':'application/json'} : undefined,
+    body: body ? JSON.stringify(body) : undefined
+  });
+  if(!res.ok){ const e = await res.json().catch(()=>({error:res.statusText})); throw new Error(e.error||'Request failed'); }
+  return res.json();
+}
+
+async function loadAll(){
+  try{ students = await apiGet(`${API}/students.php`); }
+  catch(e){ console.error(e); alert('Database se connect nahi ho saka. api/db.php ki settings aur schema.sql check karein.\n\n'+e.message); students = []; }
+  try{ fees = await apiGet(`${API}/fees.php`); }
+  catch(e){ console.error(e); fees = []; }
+  // Attendance is loaded per-date on demand (renderAttendanceList / renderHistory / renderDashboard),
+  // so we just make sure today's data is cached for the dashboard.
+  try{ attendance[todayISO()] = await apiGet(`${API}/attendance.php?date=${todayISO()}`); }
+  catch(e){ console.error(e); attendance[todayISO()] = {}; }
+}
+
+// ---------- Navigation ----------
+document.querySelectorAll('.nav-item').forEach(item=>{
+  item.addEventListener('click', ()=>{
+    document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
+    item.classList.add('active');
+    document.querySelectorAll('.page').forEach(p=>p.classList.add('hidden'));
+    document.getElementById('page-'+item.dataset.page).classList.remove('hidden');
+    if(item.dataset.page==='dashboard') renderDashboard();
+    if(item.dataset.page==='students') renderStudents();
+    if(item.dataset.page==='attendance') renderAttendance();
+    if(item.dataset.page==='fees') renderFees();
+  });
+});
+
+// ---------- Helpers ----------
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function fmtDate(iso){
+  const d = new Date(iso+'T00:00:00');
+  return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+}
+function classOptionsHTML(selectedVal, includeAll){
+  let opts = includeAll ? '<option value="">All Classes</option>' : '';
+  const present = [...new Set(students.map(s=>s.class))];
+  const ordered = CLASS_ORDER.filter(c=>present.includes(c)).concat(present.filter(c=>!CLASS_ORDER.includes(c)));
+  ordered.forEach(c=>{
+    opts += `<option value="${c}" ${c===selectedVal?'selected':''}>${c}</option>`;
+  });
+  return opts;
+}
+
+// ---------- Dashboard ----------
+function renderDashboard(){
+  document.getElementById('todayDate').textContent = fmtDate(todayISO());
+  document.getElementById('statStudents').textContent = students.length;
+  const todayAtt = attendance[todayISO()] || {};
+  let present=0, absent=0;
+  Object.values(todayAtt).forEach(v=>{ if(v==='present') present++; else if(v==='absent') absent++; });
+  document.getElementById('statPresent').textContent = present;
+  document.getElementById('statAbsent').textContent = absent;
+  document.getElementById('statDue').textContent = fees.filter(f=>f.status==='due').length;
+
+  const recent = [...students].sort((a,b)=> new Date(b.admissionDate) - new Date(a.admissionDate)).slice(0,5);
+  const tbody = document.getElementById('recentStudentsBody');
+  tbody.innerHTML = recent.length ? recent.map(s=>`
+    <tr><td class="roll">#${s.roll}</td><td>${s.name}</td><td>${s.class}</td><td>${fmtDate(s.admissionDate)}</td></tr>
+  `).join('') : `<tr class="empty-row"><td colspan="4">No students admitted yet</td></tr>`;
+}
+
+// ---------- Students ----------
+document.getElementById('studentForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const payload = {
+    name: document.getElementById('sName').value.trim(),
+    father: document.getElementById('fName').value.trim(),
+    class: document.getElementById('sClass').value,
+    phone: document.getElementById('sPhone').value.trim(),
+    monthlyFee: Number(document.getElementById('sFee').value) || 0
+  };
+  try{
+    await apiSend(`${API}/students.php`, 'POST', payload);
+    students = await apiGet(`${API}/students.php`);
+    e.target.reset();
+    renderStudents();
+    renderDashboard();
+  }catch(err){ alert('Admission save nahi ho saki: '+err.message); }
+});
+
+async function deleteStudent(id){
+  if(!confirm('Are you sure you want to delete this student record?')) return;
+  try{
+    await apiSend(`${API}/students.php?id=${encodeURIComponent(id)}`, 'DELETE');
+    students = await apiGet(`${API}/students.php`);
+    fees = await apiGet(`${API}/fees.php`);
+    renderStudents(); renderFees(); renderDashboard();
+  }catch(err){ alert('Delete nahi ho saka: '+err.message); }
+}
+
+function renderStudents(){
+  const filterClass = document.getElementById('filterClass');
+  const currentFilter = filterClass.value;
+  filterClass.innerHTML = classOptionsHTML(currentFilter, true);
+
+  let list = [...students];
+  if(currentFilter) list = list.filter(s=>s.class===currentFilter);
+  list.sort((a,b)=>a.roll-b.roll);
+
+  document.getElementById('studentCountTag').textContent = students.length;
+  const tbody = document.getElementById('studentsBody');
+  tbody.innerHTML = list.length ? list.map(s=>`
+    <tr>
+      <td class="roll">#${s.roll}</td>
+      <td>${s.name}</td>
+      <td>${s.father}</td>
+      <td>${s.class}</td>
+      <td>${s.phone||'—'}</td>
+      <td>Rs ${s.monthlyFee||0}</td>
+      <td><button class="btn ghost" onclick="deleteStudent('${s.id}')">Delete</button></td>
+    </tr>
+  `).join('') : `<tr class="empty-row"><td colspan="7">No students found</td></tr>`;
+}
+
+document.getElementById('filterClass').addEventListener('change', renderStudents);
+
+// ---------- Attendance ----------
+document.getElementById('attDate').addEventListener('change', renderAttendanceList);
+document.getElementById('attClass').addEventListener('change', renderAttendanceList);
+document.getElementById('historyDate').addEventListener('change', renderHistory);
+
+async function renderAttendance(){
+  document.getElementById('attDate').value = document.getElementById('attDate').value || todayISO();
+  document.getElementById('historyDate').value = document.getElementById('historyDate').value || todayISO();
+  const attClass = document.getElementById('attClass');
+  attClass.innerHTML = classOptionsHTML(attClass.value, true);
+  await renderAttendanceList();
+  await renderHistory();
+}
+
+async function renderAttendanceList(){
+  const date = document.getElementById('attDate').value || todayISO();
+  const cls = document.getElementById('attClass').value;
+  let list = [...students];
+  if(cls) list = list.filter(s=>s.class===cls);
+  list.sort((a,b)=>a.roll-b.roll);
+
+  if(!attendance[date]){
+    try{ attendance[date] = await apiGet(`${API}/attendance.php?date=${date}`); }
+    catch(e){ attendance[date] = {}; }
+  }
+  const dayRecord = attendance[date] || {};
+  const container = document.getElementById('attList');
+  container.innerHTML = list.length ? list.map(s=>{
+    const status = dayRecord[s.id] || '';
+    return `
+    <div class="att-row" data-id="${s.id}">
+      <div class="who"><span class="roll">#${s.roll}</span> <span>${s.name}</span> <span style="color:var(--muted);font-size:12px;">(${s.class})</span></div>
+      <div class="toggle-group">
+        <button type="button" class="toggle-btn p ${status==='present'?'active':''}" onclick="markStatus('${s.id}','present')">Present</button>
+        <button type="button" class="toggle-btn a ${status==='absent'?'active':''}" onclick="markStatus('${s.id}','absent')">Absent</button>
+      </div>
+    </div>`;
+  }).join('') : `<div class="note">No students in this class</div>`;
+  document.getElementById('attSavedNote').textContent = '';
+}
+
+function markStatus(studentId, status){
+  const date = document.getElementById('attDate').value || todayISO();
+  if(!attendance[date]) attendance[date] = {};
+  attendance[date][studentId] = status;
+  renderAttendanceList();
+}
+
+document.getElementById('saveAttendance').addEventListener('click', async ()=>{
+  const date = document.getElementById('attDate').value || todayISO();
+  try{
+    await apiSend(`${API}/attendance.php`, 'POST', { date, records: attendance[date] || {} });
+    document.getElementById('attSavedNote').textContent = 'Attendance saved ✓';
+    renderDashboard();
+    renderHistory();
+  }catch(err){ alert('Attendance save nahi ho saki: '+err.message); }
+});
+
+async function renderHistory(){
+  const date = document.getElementById('historyDate').value || todayISO();
+  if(!attendance[date]){
+    try{ attendance[date] = await apiGet(`${API}/attendance.php?date=${date}`); }
+    catch(e){ attendance[date] = {}; }
+  }
+  const dayRecord = attendance[date] || {};
+  const rows = Object.keys(dayRecord).map(id=>{
+    const s = students.find(x=>x.id===id);
+    if(!s) return null;
+    const status = dayRecord[id];
+    return `<tr><td class="roll">#${s.roll}</td><td>${s.name}</td><td>${s.class}</td><td><span class="badge ${status}">${status==='present'?'Present':'Absent'}</span></td></tr>`;
+  }).filter(Boolean);
+  document.getElementById('historyBody').innerHTML = rows.length ? rows.join('') : `<tr class="empty-row"><td colspan="4">No records for this date</td></tr>`;
+}
+
+// ---------- Fees ----------
+function populateFeeStudentSelects(){
+  const opts = '<option value="">Select</option>' + students.slice().sort((a,b)=>a.roll-b.roll).map(s=>`<option value="${s.id}">#${s.roll} — ${s.name} (${s.class})</option>`).join('');
+  document.getElementById('feeStudent').innerHTML = opts;
+  document.getElementById('filterFeeStudent').innerHTML = '<option value="">All Students</option>' + students.slice().sort((a,b)=>a.roll-b.roll).map(s=>`<option value="${s.id}">#${s.roll} — ${s.name}</option>`).join('');
+}
+
+document.getElementById('feeStudent').addEventListener('change', ()=>{
+  const s = students.find(x=>x.id===document.getElementById('feeStudent').value);
+  if(s && s.monthlyFee) document.getElementById('feeAmount').value = s.monthlyFee;
+});
+
+document.getElementById('feeForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const studentId = document.getElementById('feeStudent').value;
+  if(!studentId){ alert('Please select a student'); return; }
+  try{
+    await apiSend(`${API}/fees.php`, 'POST', {
+      studentId,
+      month: document.getElementById('feeMonth').value,
+      amount: Number(document.getElementById('feeAmount').value) || 0,
+      status: document.getElementById('feeStatus').value
+    });
+    fees = await apiGet(`${API}/fees.php`);
+    e.target.reset();
+    renderFees();
+    renderDashboard();
+  }catch(err){ alert('Fee entry save nahi ho saki: '+err.message); }
+});
+
+async function toggleFeeStatus(id){
+  try{
+    await apiSend(`${API}/fees.php?id=${encodeURIComponent(id)}`, 'PUT');
+    fees = await apiGet(`${API}/fees.php`);
+    renderFees();
+    renderDashboard();
+  }catch(err){ alert('Status update nahi ho saka: '+err.message); }
+}
+
+async function deleteFee(id){
+  try{
+    await apiSend(`${API}/fees.php?id=${encodeURIComponent(id)}`, 'DELETE');
+    fees = await apiGet(`${API}/fees.php`);
+    renderFees();
+    renderDashboard();
+  }catch(err){ alert('Delete nahi ho saka: '+err.message); }
+}
+
+function renderFees(){
+  populateFeeStudentSelects();
+  const filterStudent = document.getElementById('filterFeeStudent').value;
+  const filterStatus = document.getElementById('filterFeeStatus').value;
+  let list = [...fees];
+  if(filterStudent) list = list.filter(f=>f.studentId===filterStudent);
+  if(filterStatus) list = list.filter(f=>f.status===filterStatus);
+  list.sort((a,b)=> new Date(b.date) - new Date(a.date));
+
+  const tbody = document.getElementById('feesBody');
+  tbody.innerHTML = list.length ? list.map(f=>{
+    const s = students.find(x=>x.id===f.studentId);
+    return `<tr>
+      <td>${s ? s.name : '—'}</td>
+      <td>${s ? s.class : '—'}</td>
+      <td>${f.month}</td>
+      <td>Rs ${f.amount}</td>
+      <td><span class="badge ${f.status}">${f.status==='paid'?'Paid':'Due'}</span></td>
+      <td class="row-actions">
+        <button class="btn small" onclick="toggleFeeStatus('${f.id}')">Toggle Status</button>
+        <button class="btn ghost" onclick="deleteFee('${f.id}')">Delete</button>
+      </td>
+    </tr>`;
+  }).join('') : `<tr class="empty-row"><td colspan="6">No fee records found</td></tr>`;
+}
+
+document.getElementById('filterFeeStudent').addEventListener('change', renderFees);
+document.getElementById('filterFeeStatus').addEventListener('change', renderFees);
+
+// ---------- Init ----------
+(async function init(){
+  await loadAll();
+  renderDashboard();
+  renderStudents();
+  renderAttendance();
+  renderFees();
+})();
+</script>
+
+</body>
+</html>
